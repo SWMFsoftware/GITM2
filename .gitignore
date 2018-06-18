@@ -34,3 +34,5 @@ src/set_vertical_bcs.f90
 src/user.f90
 srcData
 data
+share/
+util/
