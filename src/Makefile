@@ -1,174 +1,101 @@
-ABDIR   = ${MYDIR}/srcSphereAB
-GLDIR   = ${MYDIR}/srcGlow
+# Default target
+default : GITM
 
-SEARCH_EXTRA = -I${ABDIR} -I${DATAREADINDICESDIR} -I${EMPIRICALUADIR} \
-		-I${EMPIRICALIEDIR}
+include Makefile.def
+include Makefile.test
 
-include ../srcMake/Makefile.conf
+ABDIR   = srcSphereAB
+MAINDIR = src
+GLDIR   = srcGlow
 
-include Makefile.DEPEND
-include Makefile.RULES
+PLANET=earth
 
-MODULES = \
-	ModSize.o\
-	ModTime.o\
-	ModConstants.o\
-	ModPlanet.o\
-	ModGITM.o\
-	ModSources.o\
-	ModVertical.o\
-	ModInputs.o\
-	ModSphereInterface.o\
-	ModTimingGITM.o\
-	ModRates.o\
-	ModEUV.o\
-	ModElectrodynamics.o\
-	ModSatellites.o\
-	ModLimiter.o\
-	ModTides.o\
-	ModNewell.o\
-	ModOvationSME.o\
-	ModMagTrace.o\
-	ModChemistry.o\
-	ModGITMImplicit.o\
-	ModHwm14.o\
-	ModUser.o \
-	ModRCMR.o \
-	ModOrbital.o\
-	apexsh.o
+src/ModSize.f90:
+	cp src/ModSize.f90.orig src/ModSize.f90
 
-OBJECTS = \
-	planet.o\
-	satellites.o\
-	calc_electron_temperature.o\
-	aurora.o\
-	get_potential.o\
-	calc_efield.o\
-	set_inputs.o\
-	init_energy_deposition.o\
-	get_glow.o\
-	init_grid.o\
-	time_routines.o\
-	vertical_solver.o\
-	vertical_solver_ausm.o\
-	vertical_solver_rusanov.o\
-	library.o\
-	stretch_grid.o\
-	init_mpi.o\
-	restart.o\
-	initialize.o\
-	init_msis.o\
-	init_iri.o\
-	init_b0.o\
-	init_altitude.o\
-	finalize.o\
-	calc_neutral_friction.o\
-	lubksb.o\
-	ludcmp.o\
-	calc_electrodynamics.o\
-	divergence.o\
-	calc_pressure.o\
-	calc_rates.o\
-	calc_timestep.o\
-	exchange_messages_sphere.o\
-	timing.o\
-	advance.o\
-	advance_vertical.o\
-	advance_horizontal.o\
-	set_vertical_bcs.o\
-	set_horizontal_bcs.o\
-	output.o\
-	output_common.o\
-	logfile.o\
-	calc_conduction.o\
-	calc_physics.o\
-	calc_avesza.o\
-	calc_euv.o\
-	calc_chemistry.o\
-	calc_ion_v.o\
-	chapman_new.o\
-	stop_file.o\
-	read_inputs.o\
-	add_sources.o\
-	calc_sources.o\
-	apex_routines.o\
-	write_output.o\
-	gradient.o\
-	tides.o\
-	read_MHDIMF_Indices_new.o\
-	read_NGDC_Indices_new.o\
-	read_NOAAHPI_Indices_new.o\
-	read_ACE_data.o\
-	read_sme.o\
-	user.o \
-	calc_tec.o \
-	get_location.o \
-	RCMR_routines.o
+INSTALLFILES =  src/Makefile.DEPEND \
+		src/Makefile.RULES \
+		srcInterface/Makefile.DEPEND
 
-OBJECTS_EXE = main.o ${OBJECTS} ${MODULES}
+install: src/ModSize.f90
+	touch ${INSTALLFILES}
+	@(if [ ! -d srcData ]; then ln -s data/input srcData; fi)
 
-DEPEND:
-	@${SCRIPTDIR}/depend.pl ${SEARCH} ${OBJECTS_EXE}
+# serial code uses NOMPI library
+NOMPI:
+	@echo "will make NOMPI"
+	@echo ${NOMPIDIR}
+	@cd ${NOMPIDIR}; make LIB
 
-EXE = ${BINDIR}/GITM.exe
+GITM:
+	@cd ${SHAREDIR};           make LIB
+	@cd $(ABDIR);              make -j1  LIB
+	@cd $(EMPIRICALIEDIR);     make LIB
+	@cd ${EMPIRICALUADIR};     make LIB
+	@cd $(DATAREADINDICESDIR); make LIB
+	@cd $(GLDIR);	           make -j1 LIB
+	@cd $(MAINDIR);            make GITM
 
-GITM:	DEPEND
-	@make ${EXE}
-	@make POST
-	@echo "${EXE} has been created"
+POST:
+	@cd $(MAINDIR);  make POST
 
-${EXE}:	${OBJECTS_EXE}
-	@(if [ ${OS} = "Darwin" ]; then make GITM_for_Darwin; \
-	else                            make GITM_general;     fi)
+GITM2 = ${MYDIR}
 
-GITM_general:
-	${LINK.f90} -o ${EXE} ${OBJECTS_EXE} \
-		-L${ABDIR} -lSphere \
-		-L${LIBDIR} -lEMPIRICALIE -lEMPIRICALUA -lINDICES -lSHARE \
-		-L${GLDIR} -lGLOW ${LBLAS} ${Lflag1}
+LIB:
+	cd $(ABDIR)     ; make                                         LIB
+	cd $(GLDIR)     ; make LIBPREV=${GITM2}/${ABDIR}/libSphere.a   LIBADD
+	cd $(MAINDIR)   ; make LIBPREV=${GITM2}/${GLDIR}/libUPTOGL.a   libGITM.a
+	cd srcInterface ; make LIBPREV=${GITM2}/${MAINDIR}/libUA.a     LIB
 
-GITM_for_Darwin:
-	rm -rf Tmp_; mkdir Tmp_
-	cd Tmp_; \
-		ar -x ${ABDIR}/libSphere.a; \
-		ar -x ${LIBDIR}/libEMPIRICALIE.a; \
-		ar -x ${LIBDIR}/libEMPIRICALUA.a; \
-		ar -x ${LIBDIR}/libINDICES.a; \
-		ar -x ${LIBDIR}/libSHARE.a; \
-		ar -x ${GLDIR}/libGLOW.a
-	${LINK.f90} -o ${EXE} ${OBJECTS_EXE} Tmp_/*.o ${LBLAS} ${Lflag1}
-	rm -rf Tmp_
+serialrun:
+	make GITM
+	cd ${RUNDIR}; ${SERIAL} ./GITM.exe
 
-POST:	PostProcess.o
-	${LINK.f90} ${Lflag2} -o PostProcess.exe PostProcess.o
+clean:
+	@touch ${INSTALLFILES}
+	@cd $(ABDIR);    make clean
+	@cd $(MAINDIR);  make clean
+	@cd $(GLDIR);    make clean
+	@cd srcInterface;make clean
+	@(if [ -d share ]; then cd share; make clean; fi);
+	@(if [ -d util ];  then cd util;  make clean; fi);
 
-MY_LIB = libGITM.a
+distclean: 
+	./Config.pl -uninstall
 
-LIB:	DEPEND
-	make ${MY_LIB}
-	@echo
-	@echo ${MY_LIB} has been brought up to date.
-	@echo
+allclean:
+	@touch ${INSTALLFILES}
+	@cd $(ABDIR);    make clean
+	@cd $(MAINDIR);  make distclean
+	@cd srcInterface;make distclean
+	rm -f *~ srcData/UAM.in
+	if [ -h srcData ]; then rm -f srcData; fi
+#
+#       Create run directories
+#
+rundir:
+	mkdir -p ${RUNDIR}/UA
+	@(cd ${RUNDIR}; \
+		if [ ! -e "EIE/README" ]; then \
+			ln -s ${EMPIRICALIEDIR}/data EIE;\
+		fi;)
+	cd ${RUNDIR}; rm -f ./PostGITM.exe ; ln -s ${BINDIR}/PostProcess.exe ./PostGITM.exe
+	cd ${RUNDIR}/UA; \
+		mkdir restartOUT data DataIn; \
+		ln -s restartOUT restartIN; \
+		ln -s ${BINDIR}/pGITM .; \
+		ln -s ${MYDIR}/srcData/* DataIn; rm -f DataIn/CVS
+	@(if [ "$(STANDALONE)" != "NO" ]; then \
+		cd ${RUNDIR} ; \
+		ln -s ${BINDIR}/GITM.exe . ; \
+		cp UA/DataIn/UAM.in . ; \
+		touch core ; chmod 444 core ; \
+		ln -s UA/* .; \
+	fi);
 
-${MY_LIB}: ${LIBPREV} ${MF} ${MODULES} ${OBJECTS}
-	cp -f ${LIBPREV} ${MY_LIB}
-	${AR} ${MY_LIB} ${OBJECTS} ${MODULES}
+dist:
+	make distclean
+	tar cvzf gitm_`date "+%y%m%d"`.tgz Makefile* Config.pl get_info.pl \
+	    share util src srcData srcDoc srcGlow srcIDL srcInterface \
+	    srcPython srcMake srcSphereAB srcUser Copyright
 
-clean: cleanfiles
-
-distclean: clean
-	rm -f 	ModSize.f90 \
-		ModPlanet.f90 \
-		ModChemistry.f90 \
-		ModRates.f90 \
-		aurora.f90 \
-		calc_chemistry.f90 \
-		calc_electron_temperature.f90 \
-		calc_ion_density.f90 \
-		calc_neutral_density.f90 \
-		calc_rates.f90 \
-		init_iri.f90 \
-		init_msis.f90 \
-		output.f90 \
-		planet.f90 \
-		set_vertical_bcs.f90
