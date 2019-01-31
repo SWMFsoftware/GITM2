@@ -28,7 +28,7 @@ if (-d "srcData"){
     print "SWMF_data is installed in the home directory";
 }else{
     system("git clone $SWMF_data_DIR/GITM_data.git");
-    system("cp -r GITM_data/data/input srcData");
+    system("rm -rf srcData; mv GITM_data/data/input srcData");
     system("rm -rf GITM_data");
 }
 
