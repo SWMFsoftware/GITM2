@@ -1,8 +1,15 @@
 #!/usr/bin/perl
-#  Copyright (C) 2002 Regents of the University of Michigan, portions used with permission 
+#  Copyright (C) 2002 Regents of the University of Michigan, 
+#  portions used with permission 
 #  For more information, see http://csem.engin.umich.edu/tools/swmf
-use strict;
 
+# Allow in-place editing                                                        
+$^I = "";
+
+# Add local directory to search                                                 
+push @INC, ".";
+
+use strict;
 
 our $Component       = 'UA';
 our $Code            = 'GITM2';
