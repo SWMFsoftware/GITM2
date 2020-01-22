@@ -13,12 +13,7 @@ PLANET=earth
 src/ModSize.f90:
 	cp src/ModSize.f90.orig src/ModSize.f90
 
-INSTALLFILES =  src/Makefile.DEPEND \
-		src/Makefile.RULES \
-		srcInterface/Makefile.DEPEND
-
 install: src/ModSize.f90
-	touch ${INSTALLFILES}
 	@(if [ ! -d srcData ]; then ln -s data/input srcData; fi)
 
 # serial code uses NOMPI library
@@ -52,7 +47,6 @@ serialrun:
 	cd ${RUNDIR}; ${SERIAL} ./GITM.exe
 
 clean:
-	@touch ${INSTALLFILES}
 	@cd $(ABDIR);    make clean
 	@cd $(MAINDIR);  make clean
 	@cd $(GLDIR);    make clean
@@ -64,7 +58,6 @@ distclean:
 	./Config.pl -uninstall
 
 allclean:
-	@touch ${INSTALLFILES}
 	@cd $(ABDIR);    make clean
 	@cd $(MAINDIR);  make distclean
 	@cd srcInterface;make distclean
