@@ -6,8 +6,8 @@ SEARCH_EXTRA = -I${ABDIR} -I${DATAREADINDICESDIR} -I${EMPIRICALUADIR} \
 
 include ../srcMake/Makefile.conf
 
-include Makefile.DEPEND
-include Makefile.RULES
+-include Makefile.DEPEND
+-include Makefile.RULES
 
 MODULES = \
 	ModSize.o\
