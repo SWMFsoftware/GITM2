@@ -20,7 +20,7 @@ my $config     = "share/Scripts/Config.pl";
 
 # get util and share
 my $GITCLONE = "git clone"; 
-my $GITDIR = "herot:/GIT/FRAMEWORK/";
+my $GITDIR = "git\@gitlab.umich.edu:swmf_software/";
 my $SWMF_data_DIR = "herot:/GIT/data_REPOs/";
 
 if(not -f $config and not -f "../../$config"){
