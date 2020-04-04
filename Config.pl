@@ -20,8 +20,7 @@ my $config     = "share/Scripts/Config.pl";
 
 # get util and share
 my $GITCLONE = "git clone"; 
-my $GITDIR = "git\@gitlab.umich.edu:swmf_software/";
-my $SWMF_data_DIR = "herot:/GIT/data_REPOs/";
+my $GITDIR = "git\@gitlab.umich.edu:swmf_software";
 
 if(not -f $config and not -f "../../$config"){
     `$GITCLONE $GITDIR/share` unless -d "share";
@@ -34,7 +33,7 @@ if (-d "srcData"){
 }elsif (-d $ENV{"HOME"}."/SWMF_data"){
     print "SWMF_data is installed in the home directory";
 }else{
-    system("git clone $SWMF_data_DIR/GITM_data.git");
+    system("git clone $GITDIR/GITM_data");
     system("rm -rf srcData; mv GITM_data/data/input srcData");
     system("rm -rf GITM_data");
 }
