@@ -1,4 +1,4 @@
-!  Copyright (C) 2002 Regents of the University of Michigan, portions used with permission 
+!  Copyright (C) 2002 Regents of the University of Michigan, portions used with permission
 !  For more information, see http://csem.engin.umich.edu/tools/swmf
 
 module ModGITM
@@ -9,10 +9,10 @@ module ModGITM
   implicit none
 
   real :: GitmVersion = 4.0
-  
+
   real :: dt = 0.0
 
-  integer :: iCommGITM, iProc, nProcs
+  integer :: iCommGITM, iProc, nProcs, nDimGITM
 
   real, allocatable :: dLonDist_GB(:,:,:,:)
   real, allocatable :: InvDLonDist_GB(:,:,:,:)
@@ -29,6 +29,11 @@ module ModGITM
   real, allocatable :: Gravity_GB(:,:,:,:)
   real, allocatable :: CellVolume(:,:,:,:)
 
+  ! GM-UA coupler
+  !State_VGB(iVar,i,j,k,iBlock)
+  real, allocatable :: State_VGB_GM(:,:,:,:,:)  ! Contains GM vars to be received by UA
+  !real, allocatable :: State_VGB_UA(:,:,:,:,:)  ! Contains UA vars to be passed to GM
+
   ! RCMR
   real :: f107_est, f107a_est, f107_msis, f107a_msis
   real :: PhotoElectronHeatingEfficiency_est, EDC_est(1,1)
@@ -38,6 +43,7 @@ module ModGITM
   real, allocatable :: dAltDLon_CB(:,:,:,:)
   real, allocatable :: dAltDLat_CB(:,:,:,:)
 
+  real, dimension(3,-1:nLons+2,-1:nLats+2,-1:nAlts+2,nBlocksMax) :: Xyz_gitm
   real, dimension(-1:nLons+2, nBlocksMax) :: Longitude
   real, dimension(-1:nLats+2, nBlocksMax) :: Latitude, TanLatitude, CosLatitude
 
@@ -56,12 +62,13 @@ module ModGITM
 
 real, allocatable :: SpeciesDensity(:,:,:,:,:)
 real, allocatable :: SpeciesDensityOld(:,:,:,:,:)
-  
+
   real, allocatable :: LogRhoS(:,:,:,:,:)
   real, allocatable :: LogNS(:,:,:,:,:)
   real, allocatable :: VerticalVelocity(:,:,:,:,:)
 
   real, allocatable :: NDensityS(:,:,:,:,:)
+  real :: CO2Rho(1:nLons,1:nLats,1:nAlts)
 
   real, allocatable :: IDensityS(:,:,:,:,:)
   real, allocatable :: IRIDensity(:,:,:,:,:)
@@ -144,30 +151,30 @@ real, allocatable :: SpeciesDensityOld(:,:,:,:,:)
   real, allocatable :: Velocity(:,:,:,:,:)
   real, allocatable :: IVelocity(:,:,:,:,:)
 
-  logical            :: isFirstGlow = .True.  
-  logical            :: isInitialGlow 
+  logical            :: isFirstGlow = .True.
+  logical            :: isInitialGlow
 
   real, allocatable :: Emissions(:,:,:,:,:)
 
   real, allocatable :: vEmissionRate(:,:,:,:,:)
-  
+
   real, allocatable :: PhotoElectronDensity(:,:,:,:,:)
   real, allocatable :: PhotoElectronRate(:,:,:,:,:)
   real, allocatable :: PhotoEFluxU(:,:,:,:,:)
   real, allocatable :: PhotoEFluxD(:,:,:,:,:)
-  
+
   real, allocatable :: PhotoEFluxTotal(:,:,:,:,:)
-  
+
   real, dimension(nPhotoBins)                 :: PhotoEBins
   real, dimension(-1:nLons+2, -1:nLats+2, -1:nAlts+2) :: TempUnit
 
   real :: LocalTime(-1:nLons+2)
 
-  real :: SubsolarLatitude, SubsolarLongitude 
+  real :: SubsolarLatitude, SubsolarLongitude
   real :: MagneticPoleColat, MagneticPoleLon
   real :: HemisphericPowerNorth, HemisphericPowerSouth
   real :: SunDeclination
-  
+
   integer, parameter :: iEast_ = 1, iNorth_ = 2, iUp_ = 3, iMag_ = 4
   integer, parameter :: iVIN_ = 1, iVEN_ = 2, iVEI_ = 3
 
@@ -245,6 +252,9 @@ contains
     allocate(PhotoEFluxU(nLons,nLats,nAlts,nPhotoBins,nBlocks))
     allocate(PhotoEFluxD(nLons,nLats,nAlts,nPhotoBins,nBlocks))
     allocate(PhotoEFluxTotal(nLons,nLats,nAlts,nBlocks,2))
+    allocate(State_VGB_GM(nVarGM,nLons,nLats,nAlts,nBlocks))
+    !allocate(State_VGB_UA(nVarUA,nLons,nLats,nAlts,nBlocks))
+    !State_VGB(iVar,i,j,k,iBlock)
     dLonDist_GB = 0.0
     InvDLonDist_GB = 0.0
     dLonDist_FB = 0.0
@@ -375,6 +385,8 @@ contains
     deallocate(PhotoEFluxU)
     deallocate(PhotoEFluxD)
     deallocate(PhotoEFluxTotal)
+    deallocate(State_VGB_GM)
+    !deallocate(State_VGB_UA)
   end subroutine clean_mod_gitm
   !=========================================================================
 end module ModGITM
