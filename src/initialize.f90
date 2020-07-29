@@ -1,4 +1,4 @@
-!  Copyright (C) 2002 Regents of the University of Michigan, portions used with permission 
+!  Copyright (C) 2002 Regents of the University of Michigan, portions used with permission
 !  For more information, see http://csem.engin.umich.edu/tools/swmf
 
 subroutine initialize_gitm(TimeIn)
@@ -19,6 +19,7 @@ subroutine initialize_gitm(TimeIn)
   real(Real8_), intent(in) :: TimeIn
   integer :: iLat, iAlt, iBlock, iSpecies, iLon, iError,nAltsMean,iilon,iilat
 
+  real :: temp1,temp2
   real :: TempAve
   real :: TempDiff
   real :: InvScaleHeightS(-1:nLons+2,-1:nLats+2)
@@ -37,7 +38,7 @@ subroutine initialize_gitm(TimeIn)
 !! This checks to see if the planet is not, not Titan.
 !! That is to say, it checks to see if this is actually Titan.
 
-  if (   .not. (index(cPlanet,"Titan") == 0)  ) then 
+  if (   .not. (index(cPlanet,"Titan") == 0)  ) then
      call init_radcooling
   endif
 
@@ -93,7 +94,7 @@ subroutine initialize_gitm(TimeIn)
         call init_altitude
      else
         if (UseTopography) then
-           if (AltMin > 1.0) then 
+           if (AltMin > 1.0) then
               write(*,*) 'When using topography, the minimum altitude'
               write(*,*) 'must be zero.  Stopping...'
               call stop_gitm('Incorrect minimum altitude')
@@ -112,7 +113,7 @@ subroutine initialize_gitm(TimeIn)
                      iilat = min(max(iLat,1),nLats)
 
                     do iAlt = -1,nAltsmean
-                       
+
                        dAlt = (AltMinUniform-AltZero(iiLon,iiLat,iBlock))/nAltsmean
                        Altitude_GB(iLon,iLat,iAlt,iBlock) = &
                             AltZero(iiLon,iiLat,iBlock) + ialt*dAlt
@@ -121,7 +122,7 @@ subroutine initialize_gitm(TimeIn)
 !                     write(93,*) ilat,altzero(iilon,iilat,iblock)
 !                     write(93,*)ilat, iblock,latitude(ilat,iblock)*180/pi,altitude_GB(1,ilat,0,iblock)
 !                  endif
-                                                         
+
                  enddo
               enddo
 
@@ -140,7 +141,7 @@ subroutine initialize_gitm(TimeIn)
                    AltMin + (iAlt-0.5)*(AltMax-AltMin)/nAlts
            enddo
         endif
-        
+
      end if
   endif
 
@@ -148,7 +149,7 @@ subroutine initialize_gitm(TimeIn)
   do iAlt = 0,nAlts+1
      ! Cell interface is taken to be half way between cell centers
      ! so the cell size is half of the cell center distance
-     ! between cells i-1 and i+1: 
+     ! between cells i-1 and i+1:
      dAlt_GB(:,:,iAlt,1:nBlocks) = 0.5* &
           ( Altitude_GB(:,:,iAlt+1,1:nBlocks) &
           - Altitude_GB(:,:,iAlt-1,1:nBlocks))
@@ -165,7 +166,7 @@ subroutine initialize_gitm(TimeIn)
   if (UseStretchedAltitude) then
      do iAlt=1,nAlts
         Gravity_GB(:,:,iAlt,:) = -Gravitational_Constant &
-             *(rBody/RadialDistance_GB(:,:,iAlt,:))**2 
+             *(rBody/RadialDistance_GB(:,:,iAlt,:))**2
      enddo
   endif
 
@@ -218,7 +219,7 @@ subroutine initialize_gitm(TimeIn)
                    (Latitude(iLat, iBlock) - Latitude(iLat-1, iBlock)) * &
                    0.5*(RadialDistance_GB(iLon, iLat  , iAlt, iBlock) &
                    +    RadialDistance_GB(iLon, iLat-1, iAlt, iBlock))
-              
+
               ! This is the cell size assuming that cell interface is half way
               dLonDist_GB(iLon, iLat, iAlt, iBlock) = 0.5 * &
                    (Longitude(iLon+1,iBlock) - Longitude(iLon-1,iBlock)) * &
@@ -235,7 +236,7 @@ subroutine initialize_gitm(TimeIn)
               CellVolume(iLon,iLat,iAlt,iBlock) = &
                    dLonDist_GB(iLon, iLat, iAlt, iBlock) * &
                    dLatDist_GB(iLon, iLat, iAlt, iBlock) * &
-                   dAlt_GB(iLon,iLat,iAlt,iBlock) 
+                   dAlt_GB(iLon,iLat,iAlt,iBlock)
 
            enddo
 
@@ -307,13 +308,13 @@ subroutine initialize_gitm(TimeIn)
 
 !! Some Titan-Specific Startup Routines here (Regardless of Restart or Not)
 
-  if (   .not. (index(cPlanet,"Titan") == 0)  ) then 
+  if (   .not. (index(cPlanet,"Titan") == 0)  ) then
      call init_magheat
      call init_isochem
      call init_aerosol
   endif
 
-  if (   .not. (index(cPlanet,"Mars") == 0)  ) then 
+  if (   .not. (index(cPlanet,"Mars") == 0)  ) then
      call init_isochem
   endif
 
@@ -340,7 +341,7 @@ subroutine initialize_gitm(TimeIn)
               eTemperature(:,:,iAlt,iBlock) = t
               iTemperature(:,:,iAlt,iBlock) = t
            enddo
-           
+
            do iAlt=-1,nAlts+2
 
               Rho(:,:,iAlt,iBlock) = 0.0
@@ -375,12 +376,12 @@ subroutine initialize_gitm(TimeIn)
                          - Temperature(:,:,iAlt-1,iBlock)) &
                          /(Temperature(:,:,iAlt,iBlock))
                  endif
-              
+
                  NewSumRho      = NewSumRho + &
                       Mass(iSpecies)*exp(LogNS(:,:,iAlt,iSpecies,iBlock))
-              
+
               enddo
-              
+
               do iSpecies=1,nSpecies
 
                  NDensityS(:,:,iAlt,iSpecies,iBlock) = &
@@ -395,7 +396,7 @@ subroutine initialize_gitm(TimeIn)
               enddo
 
            enddo
-           
+
         enddo
 
      endif
@@ -448,5 +449,28 @@ subroutine initialize_gitm(TimeIn)
 
   call end_timing("initialize")
 
+  ! allocate(Xyz_DGB(MaxDim,MinI:MaxI,MinJ:MaxJ,MinK:MaxK,MaxBlock))
+  !if(IsCartesianGrid .or. IsRotatedCartesian)then
+  !   do k = MinK, MaxK; do j = MinJ, MaxJ; do i = MinI, MaxI
+  !      Xyz_DGB(:,i,j,k,iBlock) = CoordMin_DB(:,iBlock) + &
+  !           ( (/i, j, k/) - 0.5 ) * CellSize_DB(:,iBlock)
+  !   end do; end do; end do
+  write(*,*) 'In initialize: ',nBlocks
+  do iBlock = 1, nBlocks
+    do iLon = 1, nLons
+      do iLat = 1, nLats
+        do iAlt = 1, nAlts
+          temp1 = sin(Longitude(iLon,iBlock))*cos(Latitude(iLat,iBlock))
+          temp2 = sin(Longitude(iLon,iBlock))*sin(Latitude(iLat,iBlock))
+          Xyz_gitm(1,iLon,iLat,iAlt,iBlock) = (Altitude_GB(iLon,iLat,iAlt,iBlock) + R_Mars)/1.e3*temp1!sin(Longitude(iLon,iBlock))*cos(Latitude(iLat,iBlock))
+          Xyz_gitm(2,iLon,iLat,iAlt,iBlock) = (Altitude_GB(iLon,iLat,iAlt,iBlock) + R_Mars)/1.e3*temp2!sin(Longitude(iLon,iBlock))*sin(Latitude(iLat,iBlock))
+          Xyz_gitm(3,iLon,iLat,iAlt,iBlock) = (Altitude_GB(iLon,iLat,iAlt,iBlock) + R_Mars)/1.e3*cos(Longitude(iLon,iBlock))
+          !Xyz_gitm(iLon,iLat,iAlt,iBlock) = Altitude_GB(iLon,iLat,iAlt,iBlock)/1.e3*temp1!sin(Longitude(iLon,iBlock))*cos(Latitude(iLat,iBlock))
+          !Xyz_gitm(iLon,iLat,iAlt,iBlock) = Altitude_GB(iLon,iLat,iAlt,iBlock)/1.e3*temp2!sin(Longitude(iLon,iBlock))*sin(Latitude(iLat,iBlock))
+          !Xyz_gitm(iLon,iLat,iAlt,iBlock) = Altitude_GB(iLon,iLat,iAlt,iBlock)/1.e3*cos(Longitude(iLon,iBlock))
+        enddo
+      enddo
+    enddo
+  enddo
+  write(*,*) 'In initialize: ',maxval(Xyz_gitm),minval(Xyz_gitm)
 end subroutine initialize_gitm
-
