@@ -1,4 +1,4 @@
-!  Copyright (C) 2002 Regents of the University of Michigan, portions used with permission 
+!  Copyright (C) 2002 Regents of the University of Michigan, portions used with permission
 !  For more information, see http://csem.engin.umich.edu/tools/swmf
 
 module ModSphereInterface
@@ -31,7 +31,7 @@ module ModSphereInterface
   type (AB_XFER) :: uam_xfer
 
   ! Sphere description
-  !! if there is comm. across poles  
+  !! if there is comm. across poles
   logical :: n_pole_connect
   logical :: s_pole_connect
 
@@ -72,7 +72,7 @@ module ModSphereInterface
   ! UAM type defines
   type UAM_ITER
      private
-     type (AB_ITER) :: iter     
+     type (AB_ITER) :: iter
   end type UAM_ITER
 
 
@@ -101,7 +101,7 @@ contains
   !  5/4/00 Robert Oehmke: created
   !
   ! NOTES:
-  !  
+  !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   subroutine UAM_module_setup(par_context, &
        icells_long, icells_lat, icells_alt, &
@@ -121,7 +121,7 @@ contains
     logical, intent(in) :: inorth_on, isouth_on
     logical, optional, intent(out) :: ok
     type (AB_ITER) :: iter
-    integer :: index,lat,long,s,si,t,i,j,a
+    integer :: index,lat,long,s,si,t,i,j,a,iLon,iLat,iAlt
     logical :: done, tmp_ok
     real :: lgp,th,ph,alt,lout
     integer :: ierror
@@ -145,7 +145,6 @@ contains
     thickness=ithickness
     n_pole_connect=inorth_on
     s_pole_connect=isouth_on
-
 
     !  ! see if we can represent the sphere
     !  !! can we evenly distribute the blocks
@@ -210,11 +209,46 @@ contains
        return
     endif
 
-    ! allocate AB sphere
+    !AB_SPH_create(sph,grp, cpb_long,cpb_lat,cpb_alt,gcn,&
+    !                         num_long, num_lat, n_pole_conn, s_pole_conn, &
+    !                         radius, thickness, center, &
+    !                         theta_min, theta_max, min_blk_out, ok)
+    !  type (AB_SPH), intent(out) :: sph
+    !  type (AB_GRP), intent(inout),target :: grp
+    !  integer, intent(in) :: num_lat, num_long,cpb_long,cpb_lat,cpb_alt,gcn
+    !  logical, intent(in) :: n_pole_conn, s_pole_conn
+    !  real, intent(in) :: radius, thickness, theta_min, theta_max
+    !  real, dimension(1:3) :: center
+    !  logical, intent(out) :: ok
+    !  integer, intent(out) :: min_blk_out
+    !  integer :: i,j,lat,long, cross_pole_long
+    !  integer :: num_per_proc,min_blk,max_blk
+    !  integer :: arr_pos,proc,blk, num_blks
+    !  integer :: ierror
+    !  logical :: tmp_ok
+    !  logical :: next_to_north,next_to_south
+    !  integer, dimension(ab_num_nbrs) :: nbrs_p,nbrs_b
+    !  integer :: me,np,max_pn
+
+    ! allocate AB sphere'
     call AB_SPH_create(uam_sph,uam_grp,cpb_long,cpb_lat,cpb_alt,gcn, &
          blks_long, blks_lat, n_pole_connect, s_pole_connect, &
          radius, thickness, center, &
          theta_min, theta_max, iStartBLK, tmp_ok)
+
+    ! uam_sph: out
+    ! uam_grp: inout
+    ! cpb_long: in
+    ! cpb_lat: in
+    ! cpb_alt: in
+    ! gcn: in
+    ! blks_long, blks_lat: in
+    ! n_pole_connect, s_pole_connect: in
+    ! radius, thickness: in
+    ! center: internal???
+    ! theta_min, theta_max: in
+    ! iStartBLK: out
+
     if (.not. tmp_ok) then
        if (present(ok)) ok=.false.
        return
@@ -489,8 +523,8 @@ contains
        do j=1,cpb_long
 
           ! get coords of to grid
-          p=loc_phi(j,i) 
-          t=loc_theta(j,i) 
+          p=loc_phi(j,i)
+          t=loc_theta(j,i)
 
           ! Convert coordinates to indices in to grid
           call find_in_list(p, num_ph, ph, ind_ph, fnd_ph)
@@ -498,7 +532,7 @@ contains
 
 
           ! if the coordinates are within range then map them
-          if (fnd_ph .and. fnd_th) then            
+          if (fnd_ph .and. fnd_th) then
              call interpol(ph(ind_ph),  &
                   th(ind_th), &
                   ph(ind_ph+1),&
@@ -517,7 +551,7 @@ contains
 
     ! Returns lower index of range containing the point.
     ! Replace this with a binary search when you have time.
-    ! Also, we're going through the input points in a 
+    ! Also, we're going through the input points in a
     ! specific order, take advantage of that.
     subroutine find_in_list(x, num_list,list, out_ind, fnd)
       real, intent(in) :: x
@@ -564,8 +598,8 @@ contains
        do j=1,cpb_long
 
           ! get coords of to grid
-          ph=loc_phi(j,i) 
-          th=loc_theta(j,i) 
+          ph=loc_phi(j,i)
+          th=loc_theta(j,i)
 
           ! Convert coordinates to indices in to grid
           ind_ph=int((ph-min_ph)/d_ph)+1
@@ -639,12 +673,12 @@ contains
 
   ! This is the function used to distribute the range of grid lines
   ! over the range of latitude values. The input value x will be
-  ! in the range [0,1] and y, the output value, should also fall 
-  ! within this range. Setting this function to y=x will 
+  ! in the range [0,1] and y, the output value, should also fall
+  ! within this range. Setting this function to y=x will
   ! distribute the grid lines evenly among the latitude range, less
-  ! linear distributions can be achived with other functions. 
+  ! linear distributions can be achived with other functions.
   ! 0 is the bottom of both the latitude and grid value ranges, similarly
-  ! 1 is the top of both. 
+  ! 1 is the top of both.
 
   subroutine lat_distr(x,y)
 
@@ -665,8 +699,8 @@ contains
   !
   ! PURPOSE: create an iterator structure for the current UAM sphere
   !
-  ! INPUTS: 
-  ! 
+  ! INPUTS:
+  !
   ! OUTPUTS: iter - the newly created iterator.
   !
   ! HISTORY:
@@ -689,7 +723,7 @@ contains
   ! INPUTS: r_iter - iteration structure to be operated upon.
   !
   ! OUTPUTS: index - start index
-  !          done  - true if there is nothing to be iterated through, 
+  !          done  - true if there is nothing to be iterated through,
   !                  false otherwise. If done=true then index is undefined.
   !
   ! HISTORY:
@@ -714,7 +748,7 @@ contains
   ! INPUTS: r_iter - iteration structure to be operated upon.
   !
   ! OUTPUTS: index - next index
-  !          done  - true if there is nothing left to iterate through 
+  !          done  - true if there is nothing left to iterate through
   !                  false otherwise. If done=true then index is undefined.
   !
   ! HISTORY:
@@ -734,8 +768,8 @@ contains
   !
   ! NAME: UAM_XFER_create
   !
-  ! PURPOSE: create a transfer structure. Allocate buffers, initialize 
-  !          data structs, etc. 
+  ! PURPOSE: create a transfer structure. Allocate buffers, initialize
+  !          data structs, etc.
   !
   ! OUTPUTS: ok - status (optional)
   !
@@ -769,9 +803,9 @@ contains
   ! NAME: UAM_XFER_start
   !
   ! PURPOSE: start the xfer of ghostcells. Used with UAM finish for
-  !          communication hiding.          
+  !          communication hiding.
   !
-  ! OUTPUTS: ok - status (optional) 
+  ! OUTPUTS: ok - status (optional)
   !
   ! HISTORY:
   !  5/4/00 Robert Oehmke: created
@@ -797,13 +831,13 @@ contains
   !
   ! NAME: UAM_XFER_finish
   !
-  ! PURPOSE: wait for a real transfer to finish and put the transfered data 
+  ! PURPOSE: wait for a real transfer to finish and put the transfered data
   !          back where the user wants it. Used with UAM start for
-  !          communication hiding.          
+  !          communication hiding.
   !
   ! INPUTS:
   !
-  ! OUTPUTS: ok - status (optional) 
+  ! OUTPUTS: ok - status (optional)
   !
   ! HISTORY:
   !  5/4/00 Robert Oehmke: created
@@ -821,7 +855,7 @@ contains
             tmp_ok)
     endif
 
-    if (present(ok)) ok=tmp_ok 
+    if (present(ok)) ok=tmp_ok
 
   end subroutine UAM_XFER_finish
 
@@ -830,11 +864,11 @@ contains
   !
   ! NAME: UAM_XFER_at_once
   !
-  ! PURPOSE: Start and finish an UAM xfer. 
+  ! PURPOSE: Start and finish an UAM xfer.
   !
   ! INPUTS:
   !
-  ! OUTPUTS: ok - status (optional) 
+  ! OUTPUTS: ok - status (optional)
   !
   ! HISTORY:
   !  5/4/00 Robert Oehmke: created
@@ -881,7 +915,7 @@ contains
   !
   ! PURPOSE: destroy a transfer structure.  Freeing buffers, etc.
   !
-  ! INPUTS: 
+  ! INPUTS:
   !
   ! OUTPUTS:
   !
@@ -909,9 +943,9 @@ contains
   ! INPUTS: min_ph,min_th - spherical coordinates of corner of grid data
   !         d_ph,d_th     - gap between each successive grid line
   !         num_ph,num_th - number of grid lines in each direction
-  !         grid(num_ph,num_th)  - grid to be mapped to UAM grid         
+  !         grid(num_ph,num_th)  - grid to be mapped to UAM grid
   !         alt           - altitude to map to
-  !         e             - energy level to map to 
+  !         e             - energy level to map to
   !
   ! OUTPUTS: ok - status
   !
@@ -965,11 +999,11 @@ contains
   !          the interpolated values over the ones already present
   !
   ! INPUTS: num_ph,num_th - number of grid lines in each direction
-  !         ph(num_ph)    - phi coordinates must be in 0,2*pi strictly going up 
+  !         ph(num_ph)    - phi coordinates must be in 0,2*pi strictly going up
   !         th(num_th)    - theta coordinates must be in -pi/2,pi/2 "   "    "
-  !         grid(num_ph,num_th)  - grid to be mapped to UAM grid         
+  !         grid(num_ph,num_th)  - grid to be mapped to UAM grid
   !         alt           - altitude to map to
-  !         e             - energy level to map to 
+  !         e             - energy level to map to
   !
   ! OUTPUTS: ok - status
   !
@@ -1039,14 +1073,14 @@ contains
   !
   ! NAME: UAM_module_takedown
   !
-  ! PURPOSE: get rid of the UAM module (deallocate storage, etc) Must be 
+  ! PURPOSE: get rid of the UAM module (deallocate storage, etc) Must be
   !          called after any UAM functions.
   !
   ! HISTORY:
   !  5/4/00 Robert Oehmke: created
   !
   ! NOTES:
-  !  
+  !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   subroutine UAM_module_takedown()
 
