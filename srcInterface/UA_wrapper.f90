@@ -490,7 +490,6 @@ contains
     use ModCoordTransform, ONLY: xyz_to_rlonlat
     use ModSizeGitm
     use ModSphereInterface
-    use ModUACoupling
 
     logical,          intent(in):: IsNew   ! true for new point array
     character(len=*), intent(in):: NameVar ! List of variables
@@ -619,7 +618,7 @@ contains
        !write(*,*) "Xyz_D: ",Xyz_D
        !call find_grid_block(Xyz_D, iProc_I(iPoint), iBlock)  Some day...
     end do
-    if(dummyvar2 .eq. 0) then
+!!!    if(dummyvar2 .eq. 0) then
       open(unit=12,file='testoutput2.txt',action="write",status="replace")
       do iSpecies = 1, nSpeciesTotal
         do iLons = 1, nLons
@@ -637,8 +636,8 @@ contains
         !write(12,*) NDensityS_reshaped
       !end do
       close(unit=12)
-      dummyvar2 = 1
-    end if
+!!!      dummyvar2 = 1
+!!!    end if
     write(*,*) 'Maxval Data: ',maxval(Data_VI)
 
   !   do iPoint = 1, nPoint
