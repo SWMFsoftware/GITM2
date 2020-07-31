@@ -149,9 +149,6 @@ module ModPlanet
   integer, parameter :: i3726_ = 11
 !  real :: KappaTemp0 = 2.22e-4
 
-  integer :: iNewGridGITM = 0
-  integer :: iNewDecompositionGITM = 0
-
   ! For GM-UA coupler
   integer :: nVarGM = 12
   !integer :: nVarUA = 1
