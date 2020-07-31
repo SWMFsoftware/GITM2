@@ -141,6 +141,8 @@ module ModPlanet
   integer, parameter :: nEmissionWavelengths = 20
   integer, parameter :: nPhotoBins = 190
 
+  ! For GM-UA coupler (Mars has 12)
+  integer :: nVarGM = 1
 
   ! These are for the neutral friction routine...
 
