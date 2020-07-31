@@ -446,27 +446,22 @@ contains
   subroutine UA_get_grid_info(nDimOut, iGridOut, iDecompOut)
 
     use ModInputs, ONLY: Is1D,IsFullSphere
-    use ModPlanet,  ONLY: iNewGridGITM, iNewDecompositionGITM
 
     integer, intent(out):: nDimOut    ! grid dimensionality
     integer, intent(out):: iGridOut   ! grid index
     integer, intent(out):: iDecompOut ! decomposition index
-
-    logical:: IsFirstTime = .true.
-    integer:: nDimGITM = -1
 
     character(len=*), parameter :: NameSub = 'UA_get_grid_info'
 
     ! Return basic grid information useful for model coupling.
     ! The decomposition index increases with load balance and AMR.
     !--------------------------------------------------------------------------
-    write(*,*) "-->Starting UA_get_grid_info...",Is1D,IsFullSphere!, nDim, iNewGrid, iNewDecomposition
-    if (Is1D) nDimGITM = 1
-    if (IsFullSphere) nDimGITM = 3
-    write(*,*) 'nDimGITM: ',nDimGITM
-    nDimOut    = nDimGITM
-    iGridOut   = iNewGridGITM
-    iDecompOut = iNewDecompositionGITM
+    if (Is1D) nDimOut = 1
+    if (IsFullSphere) nDimOut = 3
+
+    ! The GITM grid does not change
+    iGridOut   = 1
+    iDecompOut = 1
 
   end subroutine UA_get_grid_info
   !============================================================================
@@ -913,9 +908,6 @@ contains
     real,    intent(in), optional  :: Data_VI(:,:)    ! Recv data array
     integer, intent(in), optional  :: iPoint_I(nPoint)! Order of data
     real, intent(out), allocatable, optional:: Pos_DI(:,:)  ! Position vectors
-
-    ! Finish the initialization after the first coupling
-    logical:: IsFirstTime = .true.
 
     logical:: DoTest, DoTestMe
     character(len=*), parameter :: NameSub='UA_put_from_gm'
