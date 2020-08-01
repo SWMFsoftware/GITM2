@@ -472,5 +472,5 @@ subroutine initialize_gitm(TimeIn)
       enddo
     enddo
   enddo
-  write(*,*) 'In initialize: ',maxval(Xyz_gitm),minval(Xyz_gitm)
+
 end subroutine initialize_gitm
