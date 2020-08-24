@@ -594,14 +594,5 @@ stfd.fpi.in
 
 </commandgroup>
 
-<rule expr="-d 'UA/restartOUT' or not $_IsFirstSession">
-        Directory UA/restartOUT should exist!
-</rule>
-
-<rule expr="-d 'UA/data' or not $_IsFirstSession">
-        Output directory UA/data should exist!
-</rule>
-
-
 </commandList>
 
