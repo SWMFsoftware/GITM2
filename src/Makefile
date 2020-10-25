@@ -4,7 +4,7 @@ GLDIR   = ${MYDIR}/srcGlow
 SEARCH_EXTRA = -I${ABDIR} -I${DATAREADINDICESDIR} -I${EMPIRICALUADIR} \
 		-I${EMPIRICALIEDIR}
 
-include ../srcMake/Makefile.conf
+-include ../srcMake/Makefile.conf
 
 -include Makefile.DEPEND
 -include Makefile.RULES
@@ -171,4 +171,5 @@ distclean: clean
 		init_msis.f90 \
 		output.f90 \
 		planet.f90 \
-		set_vertical_bcs.f90
+		set_vertical_bcs.f90 \
+		user.f90
