@@ -61,7 +61,6 @@ allclean:
 	@cd $(ABDIR);    make clean
 	@cd $(MAINDIR);  make distclean
 	@cd srcInterface;make distclean
-	rm -f *~ srcData/UAM.in
 	if [ -h srcData ]; then rm -f srcData; fi
 #
 #       Create run directories
@@ -81,7 +80,6 @@ rundir:
 	@(if [ "$(STANDALONE)" != "NO" ]; then \
 		cd ${RUNDIR} ; \
 		ln -s ${BINDIR}/GITM.exe . ; \
-		cp UA/DataIn/UAM.in . ; \
 		touch core ; chmod 444 core ; \
 		ln -s UA/* .; \
 	fi);
