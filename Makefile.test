@@ -28,9 +28,9 @@ test_help:
 	@echo "    test KEEP=y                (run tests and keep run directories)"
 	@echo "    test MPIRUN=               (run tests serially)"
 	@echo "    test NPFLAG=-n NP=3        (run tests with ${PARALLEL} -n 3)"
-	@echo "    test PARALLEL='mpiexec'    (run tests with mpiexec)"
-	@echo "    test_earth                 (run Earth GITM test)"
-	@echo "    test_mars                  (run Mars GITM test)"
+	@echo "    test PARALLEL='ibrun'      (run tests with ibrun)"
+	@echo "    test_gitm_earth            (run Earth GITM test)"
+	@echo "    test_gitm_mars             (run Mars GITM test)"
 
 test_rundir:
 	rm -rf ${TESTDIR}
