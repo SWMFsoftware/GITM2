@@ -101,6 +101,7 @@ subroutine logfile(dir)
   use ModIndices
   use ModIndicesInterfaces
   use ModUtilities, ONLY: flush_unit
+  use ModIoUnit, ONLY: io_unit_new
 
   implicit none
 
@@ -117,7 +118,7 @@ subroutine logfile(dir)
      call write_code_information(dir)
 
      IsOpenLogFile = .true.
-     call CON_io_unit_new(iLogFileUnit_)
+     iLogFileUnit_ = io_unit_new()
 
      write(cIter,"(i8.8)") iStep
 
@@ -244,7 +245,8 @@ subroutine write_code_information(dir)
   use ModIndicesInterfaces
   use ModUtilities, ONLY: flush_unit
   use ModRCMR
-
+  use ModIoUnit, ONLY: io_unit_new
+  
   implicit none
 
   character (len=*), intent(in) :: dir
@@ -254,7 +256,7 @@ subroutine write_code_information(dir)
 
   if (iProc == 0) then
 
-     call CON_io_unit_new(iCodeInfoFileUnit_)
+     iCodeInfoFileUnit_ = io_unit_new()
 
      open(unit=iCodeInfoFileUnit_, &
           file=dir//"/run_information.txt",status="replace")

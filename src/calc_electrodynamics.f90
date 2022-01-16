@@ -1,4 +1,5 @@
-!  Copyright (C) 2002 Regents of the University of Michigan, portions used with permission 
+!  Copyright (C) 2002 Regents of the University of Michigan,
+!  portions used with permission 
 !  For more information, see http://csem.engin.umich.edu/tools/swmf
 subroutine UA_fill_electrodynamics(UAr2_fac, UAr2_ped, UAr2_hal, &
             UAr2_lats, UAr2_mlts)
@@ -18,7 +19,7 @@ subroutine UA_fill_electrodynamics(UAr2_fac, UAr2_ped, UAr2_hal, &
 
 end subroutine UA_fill_electrodynamics
 
-!\
+
 
 subroutine UA_calc_electrodynamics(UAi_nMLTs, UAi_nLats)
 
@@ -30,6 +31,7 @@ subroutine UA_calc_electrodynamics(UAi_nMLTs, UAi_nLats)
   use ModMPI
   use ModTime
   use ModMagTrace
+  use ModUtilities, ONLY: CON_stop
 
   implicit none
 
