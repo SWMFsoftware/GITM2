@@ -196,13 +196,14 @@ subroutine logfile(dir)
   call MPI_REDUCE(LocalVar, AverageVertVel, 1, MPI_REAL, MPI_SUM, &
        0, iCommGITM, iError)
 
-  LocalVar = HemisphericPowerNorth
-  call MPI_REDUCE(LocalVar, HPn, 1, MPI_REAL, MPI_SUM, &
-       0, iCommGITM, iError)
+
+!  LocalVar = HemisphericPowerNorth
+!  call MPI_REDUCE(LocalVar, HPn, 1, MPI_REAL, MPI_SUM, &
+!       0, iCommGITM, iError)
   HPn = 0.0
-  LocalVar = HemisphericPowerSouth
-  call MPI_REDUCE(LocalVar, HPs, 1, MPI_REAL, MPI_SUM, &
-       0, iCommGITM, iError)
+!  LocalVar = HemisphericPowerSouth
+!  call MPI_REDUCE(LocalVar, HPs, 1, MPI_REAL, MPI_SUM, &
+!       0, iCommGITM, iError)
   HPs = 0.0
   LocalVar = SSVTEC
   call MPI_REDUCE(LocalVar, SSVTEC, 1, MPI_REAL, MPI_MAX, &
