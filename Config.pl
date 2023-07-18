@@ -20,7 +20,7 @@ my $config     = "share/Scripts/Config.pl";
 
 # get util and share
 my $GITCLONE = "git clone"; 
-my $GITDIR = "git\@gitlab.umich.edu:swmf_software";
+my $GITDIR = "git\@github.com:SWMFsoftware";
 
 if(not -f $config and not -f "../../$config"){
     `$GITCLONE $GITDIR/share` unless -d "share";
